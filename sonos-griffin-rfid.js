@@ -57,16 +57,13 @@ var pressTimer;
 var isDown = false;
 
 powermate.on('wheelTurn', function(delta) {
-    clearTimeout(pressTimer);
-// This is a right turn
+    // This is a right turn
     if (delta > 0) {
-        if (isDown) downRight(); // While down
-        else right(delta); // while up
+        right(delta); // while up
     }
-// Left
+    // Left
     if (delta < 0) {
-        if (isDown) downLeft(); //down
-        else left(delta); // up
+        left(delta); // up
     }
 });
 
