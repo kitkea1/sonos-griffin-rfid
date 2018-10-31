@@ -52,31 +52,15 @@ discovery.on('favorites', function(favorites) {
     getFaveAudio(0);
 });
 
-discovery.on('transport-state', function(msg) {
-    if (msg.uuid == player.coordinator.uuid) {
-// And if we've paused, turn the LED off
-        if (msg.state.zoneState == "PAUSED_PLAYBACK" || msg.state.zoneState == "STOPPED") powermate.setBrightness(0);
-// Anf if we've played, turn the LED on
-        else if (msg.state.zoneState == "PLAYING") powermate.setBrightness(255);
-    }
-});
-
-
-var dblClickTimer;
-var pressTimer;
-var isDown = false;
-
 powermate.on('wheelTurn', function(delta) {
     clearTimeout(pressTimer);
 // This is a right turn
     if (delta > 0) {
-        if (isDown) downRight(); // While down
-        else right(delta); // while up
+        right(delta); // while up
     }
 // Left
     if (delta < 0) {
-        if (isDown) downLeft(); //down
-        else left(delta); // up
+        left(delta); // up
     }
 });
 
