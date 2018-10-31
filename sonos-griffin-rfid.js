@@ -208,7 +208,7 @@ function togglePlay() {
 }
 
 function grabPlayer() {
-    player = discovery.getPlayer('family room');
+    player = discovery.getPlayer('Kitchen');
 
     if (!player) return;
 
@@ -383,4 +383,3 @@ function initialize() {
     }
 
 }
-
