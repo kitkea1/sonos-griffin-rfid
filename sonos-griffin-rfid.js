@@ -42,16 +42,6 @@ discovery.on('topology-change', function() {
         grabPlayer();
 })
 
-// Here we're going to look for favorites changes
-discovery.on('favorites', function(favorites) {
-    faves = [];
-    for (var i = 0; i < favorites.length; i++) {
-        faves.push(favorites[i].title);
-    }
-// And go get their tts audio
-    getFaveAudio(0);
-});
-
 discovery.on('transport-state', function(msg) {
     if (msg.uuid == player.coordinator.uuid) {
 // And if we've paused, turn the LED off
