@@ -75,7 +75,6 @@ var commandTimer;
 function right(delta) {
     if (commandReady && isPlaying()) {
         commandReady = false;
-        console.log(delta);
         player.coordinator.groupSetVolume('+' + delta.toString());
         commandTimer = setTimeout(function() {
             commandReady = true;
@@ -87,7 +86,6 @@ function right(delta) {
 function left(delta) {
     if (commandReady && isPlaying()) {
         commandReady = false;
-        console.log(delta);
         player.coordinator.groupSetVolume(delta.toString());
         commandTimer = setTimeout(function() {
             commandReady = true;
