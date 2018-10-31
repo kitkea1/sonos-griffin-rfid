@@ -78,7 +78,7 @@ function right(delta) {
         player.coordinator.groupSetVolume('+' + delta.toString());
         commandTimer = setTimeout(function() {
             commandReady = true;
-        }, 100);
+        }, 10);
     }
 }
 
@@ -89,7 +89,7 @@ function left(delta) {
         player.coordinator.groupSetVolume(delta.toString());
         commandTimer = setTimeout(function() {
             commandReady = true;
-        }, 100);
+        }, 10);
     }
 }
 
