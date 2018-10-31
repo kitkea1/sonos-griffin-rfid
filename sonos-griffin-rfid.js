@@ -66,28 +66,6 @@ var dblClickTimer;
 var pressTimer;
 var isDown = false;
 
-// Grab the three events our powermate sends, and turn them into gestures
-powermate.on('buttonDown', function() {
-    isDown = true;
-// If we hold the button down for more than 1 second, let's call it a long press....
-    pressTimer = setTimeout(longClick, 1000);
-});
-
-powermate.on('buttonUp', function() {
-    isDown = false;
-// If the timer is still going call it a short click
-    if (pressTimer._idleNext) {
-        if (dblClickTimer && dblClickTimer._idleNext) {
-            clearTimeout(dblClickTimer);
-            doubleClick();
-        }
-        else {
-            dblClickTimer=setTimeout(singleClick,500);
-        }
-    }
-    clearTimeout(pressTimer);
-});
-
 powermate.on('wheelTurn', function(delta) {
     clearTimeout(pressTimer);
 // This is a right turn
@@ -106,104 +84,25 @@ powermate.on('wheelTurn', function(delta) {
 var commandReady = true;
 var commandTimer;
 
-// We got a single click..
-function singleClick() {
-// If we aren't in favorites mode, toggle the Sonos' play status
-    if (!inFaves)
-        togglePlay();
-// Otherwise, close the favorites server down, and play the selected favorite
-    else {
-        clearTimeout(dblClickTimer);
-        dblClickTimer = null;
-        favServer.close(function() {
-            playFavorite(favIndex);
-            powermate.setPulseAwake(false);
-            inFaves=false;
-            favCounter=20;
-            favIndex=-1;
-            favServer=null;
-        });
-    }
-}
-
-// If we're playing, go to the next track, otherwise, if we're not in fav
-// mode, go into it, and if we are in fav mode, exit it
-function doubleClick() {
-    if (isPlaying()) {
-        player.coordinator.nextTrack();
-    }
-    else if (!inFaves) {
-        enterFavorites();
-    }
-    else if (inFaves) {
-        exitFaves();
-    }
-}
-
-// Previous track
-function longClick() {
-   if (isPlaying())
-        player.coordinator.previousTrack();
-}
-
 // Turn up the group volume
 function right(delta) {
-    if (commandReady && isPlaying() && !inFaves) {
+    if (commandReady && isPlaying()) {
         commandReady = false;
-        player.coordinator.groupSetVolume('+2');
+        player.coordinator.groupSetVolume('+1');
         commandTimer = setTimeout(function() {
             commandReady = true;
         }, 100);
-    }
-    else if (inFaves) {
-        favTurn(delta);
     }
 }
 
 // Turn down the group volume
 function left(delta) {
-    if (commandReady && isPlaying() && !inFaves) {
-        commandReady = false;
-        player.coordinator.groupSetVolume('-2');
-        commandTimer = setTimeout(function() {
-            commandReady = true;
-        }, 100);
-    }
-    else if (inFaves) {
-        favTurn(delta);
-    }
-}
-
-// Turn up zone player volume
-function downRight() {
     if (commandReady && isPlaying()) {
         commandReady = false;
-        player.setVolume('+2');
+        player.coordinator.groupSetVolume('-1');
         commandTimer = setTimeout(function() {
             commandReady = true;
         }, 100);
-    }
-}
-
-// Turn down zone player volume
-function downLeft() {
-    if (commandReady && isPlaying()) {
-        commandReady = false;
-        player.setVolume('-2');
-        commandTimer = setTimeout(function() {
-            commandReady = true;
-        }, 100);
-    }
-}
-
-// Toggle the playing state of the player
-function togglePlay() {
-    clearTimeout(dblClickTimer);
-    dblClickTimer = null;
-    if (isPlaying()) {
-        player.coordinator.pause();
-    } else {
-        player.coordinator.play();
     }
 }
 
