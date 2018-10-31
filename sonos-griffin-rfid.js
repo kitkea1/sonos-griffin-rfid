@@ -48,17 +48,16 @@ discovery.on('favorites', function(favorites) {
     for (var i = 0; i < favorites.length; i++) {
         faves.push(favorites[i].title);
     }
-// And go get their tts audio
+    // And go get their tts audio
     getFaveAudio(0);
 });
 
 powermate.on('wheelTurn', function(delta) {
-    clearTimeout(pressTimer);
-// This is a right turn
+    // This is a right turn
     if (delta > 0) {
         right(delta); // while up
     }
-// Left
+    // Left
     if (delta < 0) {
         left(delta); // up
     }
@@ -93,26 +92,11 @@ function left(delta) {
 function grabPlayer() {
     player = discovery.getPlayer('Kitchen');
 
-    if (!player) return;
-
-  //  grabFavorites();
-    powermate.setPulseAwake(false);
-// Figure out if our player is playing. If so, turn the LED on
-    if (isPlaying()) {
-        powermate.setBrightness(255);
-// Otherwise turn it off
-    } else {
-        powermate.setBrightness(0);
+    if (!player)
+        return;
+    else {
+        powermate.setPulseAwake(false);
     }
-    faves = [];
-    player.getFavorites(function(success, favorites) {
-        if (!success) return;
-        for (var i = 0; i < favorites.length; i++) {
-            faves.push(favorites[i].title);
-        }
-//        getFaveAudio(0);
-    });
-
 }
 
 function isPlaying() {
