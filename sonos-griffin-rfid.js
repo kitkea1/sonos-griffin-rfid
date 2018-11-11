@@ -58,25 +58,20 @@ var isDown = false;
 
 // VOLUME CONTROL
 powermate.on('wheelTurn', function(delta) {
-    // This is a right turn
-    if (delta > 0) {
-      if (commandReady && isPlaying()) {
-          commandReady = false;
-          player.coordinator.groupSetVolume('+1');
-          commandTimer = setTimeout(function() {
-              commandReady = true;
-          }, 25);
+    if (commandReady && isPlaying()) {
+      commandReady = false;
+      // Clockwise (right turn)
+      if (delta > 0) {
+        player.coordinator.groupSetVolume('+1');
       }
-    }
-    // Left
-    if (delta < 0) {
-      if (commandReady && isPlaying()) {
-          commandReady = false;
-          player.coordinator.groupSetVolume('-1');
-          commandTimer = setTimeout(function() {
-              commandReady = true;
-          }, 25);
+      // Counterclockwise (left turn)
+      if (delta < 0) {
+        player.coordinator.groupSetVolume('-1');
       }
+      // Sets delay before next turn is accounted for
+      commandTimer = setTimeout(function() {
+          commandReady = true;
+      }, 25);
     }
 });
 
