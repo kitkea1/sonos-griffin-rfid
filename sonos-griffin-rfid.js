@@ -56,42 +56,33 @@ var dblClickTimer;
 var pressTimer;
 var isDown = false;
 
+// VOLUME CONTROL
 powermate.on('wheelTurn', function(delta) {
     // This is a right turn
     if (delta > 0) {
-        right('+1');
+      if (commandReady && isPlaying()) {
+          commandReady = false;
+          player.coordinator.groupSetVolume('+1');
+          commandTimer = setTimeout(function() {
+              commandReady = true;
+          }, 25);
+      }
     }
     // Left
     if (delta < 0) {
-        left('-1');
+      if (commandReady && isPlaying()) {
+          commandReady = false;
+          player.coordinator.groupSetVolume('-1');
+          commandTimer = setTimeout(function() {
+              commandReady = true;
+          }, 25);
+      }
     }
 });
 
 // Our gesstures section
 var commandReady = true;
 var commandTimer;
-
-// Turn up the group volume
-function right(delta) {
-    if (commandReady && isPlaying()) {
-        commandReady = false;
-        player.coordinator.groupSetVolume(delta);
-        commandTimer = setTimeout(function() {
-            commandReady = true;
-        }, 25);
-    }
-}
-
-// Turn down the group volume
-function left(delta) {
-    if (commandReady && isPlaying()) {
-        commandReady = false;
-        player.coordinator.groupSetVolume(delta);
-        commandTimer = setTimeout(function() {
-            commandReady = true;
-        }, 25);
-    }
-}
 
 function grabPlayer() {
     player = discovery.getPlayer('Kitchen');
