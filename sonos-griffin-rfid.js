@@ -59,11 +59,11 @@ var isDown = false;
 powermate.on('wheelTurn', function(delta) {
     // This is a right turn
     if (delta > 0) {
-        right(delta); // while up
+        right('+1');
     }
     // Left
     if (delta < 0) {
-        left(delta); // up
+        left('-1');
     }
 });
 
@@ -75,10 +75,10 @@ var commandTimer;
 function right(delta) {
     if (commandReady && isPlaying()) {
         commandReady = false;
-        player.coordinator.groupSetVolume('+' + delta.toString());
+        player.coordinator.groupSetVolume(delta);
         commandTimer = setTimeout(function() {
             commandReady = true;
-        }, 10);
+        }, 25);
     }
 }
 
@@ -86,10 +86,10 @@ function right(delta) {
 function left(delta) {
     if (commandReady && isPlaying()) {
         commandReady = false;
-        player.coordinator.groupSetVolume(delta.toString());
+        player.coordinator.groupSetVolume(delta);
         commandTimer = setTimeout(function() {
             commandReady = true;
-        }, 10);
+        }, 25);
     }
 }
 
