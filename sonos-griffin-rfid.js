@@ -6,16 +6,20 @@
 */
 'use strict'
 
-var SonosDiscovery = require('sonos-discovery'),
-    discovery = new SonosDiscovery(),
-    PowerMate = require('node-powermate'),
-    powermate = new PowerMate(),
-    download = require('url-download'),
-    fs = require('fs'),
-    path = require('path'),
-    http = require('http'),
-    util = require('util'),
-    os = require('os');
+// REQUIRED NODE MODULES
+var SonosDiscovery = require('sonos-discovery');
+var PowerMate      = require('node-powermate');
+var download       = require('url-download');
+var fs             = require('fs');
+var path           = require('path');
+var http           = require('http');
+var util           = require('util');
+var os             = require('os');
+
+
+// SONOS and GRIFFIN POWERMATE OBJECTS
+var discovery = new SonosDiscovery();
+var powermate = new PowerMate();
 
 // Get the LED strobing while we're discovering the Sonos topology
 powermate.setPulseSpeed(511);
@@ -42,19 +46,9 @@ discovery.on('topology-change', function() {
         grabPlayer();
 })
 
-discovery.on('transport-state', function(msg) {
-    if (msg.uuid == player.coordinator.uuid) {
-// And if we've paused, turn the LED off
-        if (msg.state.zoneState == "PAUSED_PLAYBACK" || msg.state.zoneState == "STOPPED") powermate.setBrightness(0);
-// Anf if we've played, turn the LED on
-        else if (msg.state.zoneState == "PLAYING") powermate.setBrightness(255);
-    }
-});
-
-
-var dblClickTimer;
-var pressTimer;
-var isDown = false;
+// COMMAND VARIABLES
+var commandReady = true;
+var commandTimer;
 
 // VOLUME CONTROL
 powermate.on('wheelTurn', function(delta) {
@@ -75,9 +69,6 @@ powermate.on('wheelTurn', function(delta) {
     }
 });
 
-// Our gesstures section
-var commandReady = true;
-var commandTimer;
 
 function grabPlayer() {
     player = discovery.getPlayer('Kitchen');
