@@ -1,70 +1,67 @@
 /*
-* sonospowermate.js
-* control a sonos speaker (or group that speaker belongs to)
-* and monitor its play status with the led ring
+* sonos-griffin-rfid.js
 *
 */
 'use strict'
 
+////////////////////////////////////////////////////////////////////////////////
+// GLOBAL VARIABLES ////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
 // REQUIRED NODE MODULES
 var SonosDiscovery = require('sonos-discovery');
 var PowerMate      = require('node-powermate');
-var download       = require('url-download');
-var fs             = require('fs');
-var path           = require('path');
-var http           = require('http');
-var util           = require('util');
-var os             = require('os');
 
-
-// SONOS and GRIFFIN POWERMATE OBJECTS
+// SONOS OBJECTS AND STARTUP SETTINGS
 var discovery = new SonosDiscovery();
-var powermate = new PowerMate();
+var player; // to be setup using topology-change function
 
-// SET BRIGHTNESS OF POWERMATE
+// GRIFFEN POWERMATE AND STARTUP SETTINGS
+var powermate = new PowerMate();
 powermate.setBrightness(0);
 
-var faves;
-var favIndex=-1;
-var favCounter=20;
-var canDelta=true;
-var favServer;
-var inFaves=false;
-var canDelta=true;
-var favTimer;
-var favURI;
-var favTrack;
-var player;
+// COMMAND VARIABLES
+var eventReady = true;
+var eventTimer;
 
-// DISCOVER PLAYER
+
+////////////////////////////////////////////////////////////////////////////////
+// EVENTS //////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+// SONOS EVENTS
 discovery.on('topology-change', function() {
     if (!player) {
       player = discovery.getPlayer('Kitchen');
     }
 })
 
-// COMMAND VARIABLES
-var commandReady = true;
-var commandTimer;
-
-// VOLUME CONTROL
+// VOLUME EVENTS
 powermate.on('wheelTurn', function(delta) {
-    if (commandReady && isPlaying()) {
-      commandReady = false;
+    if (eventReady && !!player && isPlaying()) {
+      eventReady = false;
       // Clockwise (right turn)
       if (delta > 0) {
-        player.coordinator.groupSetVolume('+1');
+          player.coordinator.groupSetVolume('+1');
       }
       // Counterclockwise (left turn)
       if (delta < 0) {
-        player.coordinator.groupSetVolume('-1');
+          player.coordinator.groupSetVolume('-1');
       }
       // Sets delay before next turn is accounted for
-      commandTimer = setTimeout(function() {
-          commandReady = true;
+      eventTimer = setTimeout(function() {
+          eventReady = true;
       }, 25);
     }
 });
+
+// RFID EVENTS
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+// CALLED FUNCTIONS ////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 function isPlaying() {
     return player.coordinator.state['currentState'] == "PLAYING";
