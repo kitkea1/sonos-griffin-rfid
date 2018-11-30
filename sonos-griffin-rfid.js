@@ -40,10 +40,12 @@ var player;
 // Get our ip addressand make sure our audio container directory exists
 initialize();
 
-// Wait until the Sonos discovery process is done, then grab our player
+// DISCOVER PLAYER
 discovery.on('topology-change', function() {
-    if (!player)
-        grabPlayer();
+    if (!player) {
+      player = discovery.getPlayer('Kitchen');
+      if (!player) return;
+    }
 })
 
 // COMMAND VARIABLES
@@ -71,27 +73,7 @@ powermate.on('wheelTurn', function(delta) {
 
 
 function grabPlayer() {
-    player = discovery.getPlayer('Kitchen');
 
-    if (!player) return;
-
-  //  grabFavorites();
-    powermate.setPulseAwake(false);
-// Figure out if our player is playing. If so, turn the LED on
-    if (isPlaying()) {
-        powermate.setBrightness(255);
-// Otherwise turn it off
-    } else {
-        powermate.setBrightness(0);
-    }
-    faves = [];
-    player.getFavorites(function(success, favorites) {
-        if (!success) return;
-        for (var i = 0; i < favorites.length; i++) {
-            faves.push(favorites[i].title);
-        }
-//        getFaveAudio(0);
-    });
 
 }
 
