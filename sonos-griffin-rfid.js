@@ -72,16 +72,19 @@ setInterval(function(){
           var uid = response.data;        // get uid
           console.log("Card read UID: %s %s %s %s", uid[0].toString(16), uid[1].toString(16), uid[2].toString(16), uid[3].toString(16));
 
-          playFavorite();
-
           // If a successful play
           rfidReady = false;
           powermate.setBrightness(255);
-          // Sets delay before next scan
-          rfidTimer = setTimeout(function() {
-              rfidReady = true;
-              powermate.setBrightness(0);
-          }, 250);
+
+          player.coordinator.replaceWithFavorite('After Laughter')
+                       .then(() => player.coordinator.play()
+                       .then(function() {
+                         console.log('confirmed playing')
+                         rfidReady = true;
+                         powermate.setBrightness(0);
+                       }).catch(function () {
+                         console.log("Promise Rejected, could not play")
+                       }));
         }
       }
     }
@@ -92,10 +95,15 @@ setInterval(function(){
 ////////////////////////////////////////////////////////////////////////////////
 
 function isPlaying() {
-    return player.coordinator.state['playbackState'] == "PLAYING";
+    return player.coordinator.state.playbackState == "PLAYING";
 }
 
 function playFavorite() {
   return player.coordinator.replaceWithFavorite('After Laughter')
-               .then(() => player.coordinator.play());
+               .then(() => player.coordinator.play()
+               .then(function() {
+                 console.log('confirmed playing')
+               }).catch(function () {
+                 console.log("Promise Rejected")
+               }));
 }
