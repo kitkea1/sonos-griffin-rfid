@@ -76,15 +76,36 @@ setInterval(function(){
           rfidReady = false;
           powermate.setBrightness(255);
 
-          player.coordinator.replaceWithFavorite('After Laughter')
+          player.coordinator.replaceWithFavorite('Aftr Laughter')
                        .then(() => player.coordinator.play()
                        .then(function() {
                          console.log('confirmed playing')
                          rfidReady = true;
                          powermate.setBrightness(0);
-                       }).catch(function () {
+                       }).catch(function() {
                          console.log("Promise Rejected, could not play")
-                       }));
+                       })).catch(function() {
+                         rfidReady = true;
+                         powermate.setBrightness(0);
+                       });
+
+
+           // player.coordinator.replaceWithFavorite('Woodstock')
+           //                   .then(function() {
+           //                     console.log('Found favorite');
+           //                     powermate.setBrightness(255);
+           //                     player.coordinator.play()
+           //                                       .then(function() {
+           //                                         console.log('Confirmed playing');
+           //                                         rfidReady = true;
+           //                                         powermate.setBrightness(0);
+           //                                       }).catch(function() {
+           //                                         console.log('could not confirm playing');
+           //                                       });
+           //                   }).catch(function(){
+           //                     console.log('Favorite not found');
+           //                     rfidReady = true;
+           //                   });
         }
       }
     }
