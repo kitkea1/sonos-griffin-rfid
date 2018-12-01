@@ -34,10 +34,13 @@ var rfidTimer;
 ////////////////////////////////////////////////////////////////////////////////
 // DATA ////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-var uidLookup_json = '{"884654c":"After Laughter",' +
-                      '"8844b94":"Woodstock"}';
+var uidMap_json = '{"884654c":"Play/Pause",' +
+                   '"8848484":"Mute",' +
+                   '"884654c":"After Laughter",' +
+                   '"8844b94":"Woodstock"}';
 
-var uidLookup = JSON.parse(uidLookup_json);
+var uidMap = JSON.parse(uidMap_json);
+
 
 ////////////////////////////////////////////////////////////////////////////////
 // EVENTS //////////////////////////////////////////////////////////////////////
@@ -54,13 +57,18 @@ discovery.on('topology-change', function() {
 powermate.on('wheelTurn', function(delta) {
     if (volumeReady && !!player && isPlaying()) {
       volumeReady = false;
-      // Clockwise (right turn)
-      if (delta > 0) {
-        player.coordinator.setGroupVolume('+1');
-      }
-      // Counterclockwise (left turn)
-      if (delta < 0) {
-        player.coordinator.setGroupVolume('-1');
+
+      if (player.coordinator.state.mute) {
+          player.coordinator.unMuteGroup();
+      } else {
+        // Clockwise (right turn)
+        if (delta > 0) {
+          player.coordinator.setGroupVolume('+1');
+        }
+        // Counterclockwise (left turn)
+        if (delta < 0) {
+          player.coordinator.setGroupVolume('-1');
+        }
       }
       // Sets delay before next turn is accounted for
       volumeTimer = setTimeout(function() {
@@ -71,34 +79,50 @@ powermate.on('wheelTurn', function(delta) {
 
 // RFID EVENTS
 setInterval(function(){
-    if (rfidReady) {
+    if (rfidReady && !!player) {
       let response = mfrc522.findCard();  // scans for cards
       if (!!response.status) {            // if card is detected
         response = mfrc522.getUid();      // get uid of card detected
         if (!!response.status) {          // if uid is valid
-          var uid = response.data;        // get uid
-          var uidString = uid[0].toString(16) + uid[1].toString(16) + uid[2].toString(16) + uid[3].toString(16);
+          var uidResponse = response.data;        // get uid
+          var uid = uidResponse[0].toString(16) + uidResponse[1].toString(16) + uidResponse[2].toString(16) + uidResponse[3].toString(16);
 
-          console.log(uidString);
-          console.log(uidLookup[uidString]);
+          rfidReady = false;
+          powermate.setBrightness(255);
 
-          if(uidLookup[uidString]!=undefined) {
-            rfidReady = false;
-            powermate.setBrightness(255);
+          console.log(uid);
+          console.log(uidMap[uid]);
 
-            player.coordinator.replaceWithFavorite(uidLookup[uidString])
-                         .then(() => player.coordinator.play()
-                         .then(function() {
-                           console.log('Promise accepted, playing favorite')
-                           rfidReady = true;
-                           powermate.setBrightness(0);
-                         }).catch(function() {
-                           console.log("Promise rejected, could not play")
-                         })).catch(function() {
-                           rfidReady = true;
-                           powermate.setBrightness(0);
-                           console.log("Promise rejected, could not find favorite")
-                         });
+          switch (uidMap[uid]) {
+            case undefined:
+
+              break;
+
+            case "Play/Pause":
+              //player.coordinator.
+              break;
+
+            case "Mute":
+              player.coordinator.muteGroup();
+              rfidReady = true;
+              powermate.setBrightness(0);
+              break;
+
+            // if its not an action or is undefined, must be a favorite
+            default:
+              player.coordinator.replaceWithFavorite(uidMap[uid])
+                           .then(() => player.coordinator.play()
+                           .then(function() {
+                             console.log('Promise accepted, playing favorite')
+                             rfidReady = true;
+                             powermate.setBrightness(0);
+                           }).catch(function() {
+                             console.log("Promise rejected, could not play")
+                           })).catch(function() {
+                             rfidReady = true;
+                             powermate.setBrightness(0);
+                             console.log("Promise rejected, could not find favorite")
+                           });
           }
         }
       }
