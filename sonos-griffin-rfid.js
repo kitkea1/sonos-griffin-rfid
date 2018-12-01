@@ -31,6 +31,13 @@ var volumeTimer;
 var rfidReady = true;
 var rfidTimer;
 
+////////////////////////////////////////////////////////////////////////////////
+// DATA ////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+var uidLookup_json = '{"884654c":"After Laughter",' +
+                      '"8844b94":"Woodstock"}';
+
+var uidLookup = JSON.parse(uidLookup_json);
 
 ////////////////////////////////////////////////////////////////////////////////
 // EVENTS //////////////////////////////////////////////////////////////////////
@@ -70,42 +77,29 @@ setInterval(function(){
         response = mfrc522.getUid();      // get uid of card detected
         if (!!response.status) {          // if uid is valid
           var uid = response.data;        // get uid
-          console.log("Card read UID: %s %s %s %s", uid[0].toString(16), uid[1].toString(16), uid[2].toString(16), uid[3].toString(16));
+          var uidString = uid[0].toString(16) + uid[1].toString(16) + uid[2].toString(16) + uid[3].toString(16);
 
-          // If a successful play
-          rfidReady = false;
-          powermate.setBrightness(255);
+          console.log(uidString);
+          console.log(uidLookup[uidString]);
 
-          player.coordinator.replaceWithFavorite('Aftr Laughter')
-                       .then(() => player.coordinator.play()
-                       .then(function() {
-                         console.log('confirmed playing')
-                         rfidReady = true;
-                         powermate.setBrightness(0);
-                       }).catch(function() {
-                         console.log("Promise Rejected, could not play")
-                       })).catch(function() {
-                         rfidReady = true;
-                         powermate.setBrightness(0);
-                       });
+          if(uidLookup[uidString]!=undefined) {
+            rfidReady = false;
+            powermate.setBrightness(255);
 
-
-           // player.coordinator.replaceWithFavorite('Woodstock')
-           //                   .then(function() {
-           //                     console.log('Found favorite');
-           //                     powermate.setBrightness(255);
-           //                     player.coordinator.play()
-           //                                       .then(function() {
-           //                                         console.log('Confirmed playing');
-           //                                         rfidReady = true;
-           //                                         powermate.setBrightness(0);
-           //                                       }).catch(function() {
-           //                                         console.log('could not confirm playing');
-           //                                       });
-           //                   }).catch(function(){
-           //                     console.log('Favorite not found');
-           //                     rfidReady = true;
-           //                   });
+            player.coordinator.replaceWithFavorite(uidLookup[uidString])
+                         .then(() => player.coordinator.play()
+                         .then(function() {
+                           console.log('Promise accepted, playing favorite')
+                           rfidReady = true;
+                           powermate.setBrightness(0);
+                         }).catch(function() {
+                           console.log("Promise rejected, could not play")
+                         })).catch(function() {
+                           rfidReady = true;
+                           powermate.setBrightness(0);
+                           console.log("Promise rejected, could not find favorite")
+                         });
+          }
         }
       }
     }
@@ -117,14 +111,4 @@ setInterval(function(){
 
 function isPlaying() {
     return player.coordinator.state.playbackState == "PLAYING";
-}
-
-function playFavorite() {
-  return player.coordinator.replaceWithFavorite('After Laughter')
-               .then(() => player.coordinator.play()
-               .then(function() {
-                 console.log('confirmed playing')
-               }).catch(function () {
-                 console.log("Promise Rejected")
-               }));
 }
